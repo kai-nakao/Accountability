@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "./AccountabilityNFTs.sol";
 
 contract Accountability {
@@ -32,8 +32,11 @@ contract Accountability {
         LockedFunds memory lockedFundsMemory = lockedFunds[msg.sender];
         require(lockedFundsMemory.amount > 0, "You have no locked funds.");
         require(block.timestamp >= lockedFundsMemory.lockedAt + lockedFundsMemory.time, "You can't withdraw yet.");
+        require(accountabilityNFTs.balanceOf(msg.sender) > 0, "You do not own an NFT from the other smart contract.");
 
+        console.log("lockedFundsMemory.amount", lockedFundsMemory.amount);
         uint256 amount = lockedFundsMemory.amount;
+        console.log("amount", amount);
         delete lockedFunds[msg.sender];
 
         payable(msg.sender).transfer(amount);
