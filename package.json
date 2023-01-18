@@ -16,6 +16,7 @@
     "prettier-plugin-solidity": "^1.1.0"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.7",
     "@thirdweb-dev/contracts": "^3.2.10"
   }
 }
