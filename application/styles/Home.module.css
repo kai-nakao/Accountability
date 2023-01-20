@@ -35,6 +35,7 @@
 }
 
 .connect {
+  margin-top: 2rem;
   margin-bottom: 2rem;
   width: 230px;
 }
@@ -74,14 +75,7 @@
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
   max-width: 350px;
-}
-
-.card:hover,
-.card:focus,
-.card:active {
-  background-color: #272c34;
-  color: #0ea5e9;
-  border-color: #0ea5e9;
+  min-width: 350px;
 }
 
 .card h2 {

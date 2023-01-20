@@ -13,7 +13,6 @@ function MyApp({ Component, pageProps }: AppProps) {
         <Component {...pageProps} />
         {/* <ThirdwebGuideFooter /> */}
       </SessionProvider>
-      <Component {...pageProps} />
     </ThirdwebProvider>
   )
 }
