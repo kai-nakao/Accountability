@@ -111,3 +111,26 @@
 .logo img {
   filter: invert(1);
 }
+
+.form {
+  margin-top: 32px;
+  font-size: 1.2rem;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  margin: auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  outline: none;
+}

@@ -3,12 +3,14 @@ import {
   useAddress,
   useContract,
   useContractRead,
+  Web3Button,
 } from '@thirdweb-dev/react'
 import type { NextPage } from 'next'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { ACCOUNTABILITY_CONTRACT_ADDRESS } from '../const/consts'
 import styles from '../styles/Home.module.css'
 import { BigNumber, ethers } from 'ethers'
+import { useState } from 'react'
 
 const Home: NextPage = () => {
   const address = useAddress()
@@ -18,7 +20,11 @@ const Home: NextPage = () => {
     isLoading: LockedFundsLoading,
     error,
   } = useContractRead(contract, 'lockedFunds', address)
-  console.log({ lockedFundsData, LockedFundsLoading, error })
+
+  const [form, setForm] = useState({
+    amount: '',
+    days: 0,
+  })
 
   // 0: Hasn't connected wallet yet
   if (!address) {
@@ -57,6 +63,59 @@ const Home: NextPage = () => {
       </div>
     )
   }
+
+  // 3: Data has loaded. There is no locked funds
+  // - Here we show the user option to commit X funds for Y time
+  if (lockedFundsData.amount.eq(0)) {
+    return (
+      <div className={styles.container}>
+        <main className={styles.main}>
+          <h1 className={styles.title}>Accountability Project</h1>
+          <div className={styles.form}>
+            <input
+              type="text"
+              placeholder="Amount to commit"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  amount: e.target.value,
+                })
+              }
+              className={styles.input}
+            />
+            <input
+              type="number"
+              placeholder="Days to commit"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  days: Number(e.target.value),
+                })
+              }
+              className={styles.input}
+            />
+            <Web3Button
+              contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
+              action={(contract) =>
+                contract.call('lockFunds', form.days * 150, {
+                  value: ethers.utils.parseEther(form.amount),
+                })
+              }
+              onSuccess={() => alert('Success')}
+              onError={(e) => alert('ERROR')}
+            >
+              Lock Funds
+            </Web3Button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // 4: Data has loaded. There is locked funds
+  // - Here we cloud have a ternary operator that depends on if the funds are ready to withdraw
+  // If they are, then we show the user the option to withdraw, otherwise show the information about the locked funds.
+
   return (
     <>
       <div className={styles.container}>
@@ -79,7 +138,12 @@ const Home: NextPage = () => {
               <div className={styles.grid}>
                 <div className={styles.card}>
                   <h2>Locked Amount</h2>
-                  <p>{lockedFundsData.amount.toNumber()}</p>
+                  <p>
+                    {ethers.utils.formatEther(
+                      lockedFundsData.amount.toNumber(),
+                    )}{' '}
+                    ETH
+                  </p>
                 </div>
 
                 <div className={styles.card}>
@@ -97,14 +161,33 @@ const Home: NextPage = () => {
                 <div className={styles.card}>
                   <h2>Time</h2>
                   <p>
-                    {BigNumber.from(lockedFundsData.lockedAt)
-                      .add(lockedFundsData.time)
-                      .toNumber()}
+                    {BigNumber.from(lockedFundsData.lockedAt).eq(0)
+                      ? 'N/A'
+                      : new Date(
+                          BigNumber.from(lockedFundsData.lockedAt)
+                            .add(lockedFundsData.time)
+                            .toNumber() * 1000,
+                        ).toLocaleString()}
                   </p>
                 </div>
               </div>
             </>
           )}
+          {/* {
+            // If the funds are ready to withdraw, show the withdraw button
+            BigNumber.from(lockedFundsData.lockedAt)
+              .add(lockedFundsData.time)
+              .lt(BigNumber.from(Date.now() / 1000)) && (
+              <Web3Button
+                contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
+                action={(contract) => contract.call('withdrawFunds')}
+                onSuccess={() => alert('Success')}
+                onError={(e) => alert('ERROR')}
+              >
+                Withdraw Funds
+              </Web3Button>
+            )
+          } */}
         </main>
       </div>
     </>
