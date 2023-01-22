@@ -45,6 +45,7 @@ const Home: NextPage = () => {
       <div className={styles.container}>
         <main className={styles.main}>
           <h1>Something went wrong</h1>
+          {/* @ts-ignore */}
           <p>{error.reason}</p>
           <ConnectWallet />
         </main>
@@ -173,21 +174,20 @@ const Home: NextPage = () => {
               </div>
             </>
           )}
-          {/* {
-            // If the funds are ready to withdraw, show the withdraw button
-            BigNumber.from(lockedFundsData.lockedAt)
-              .add(lockedFundsData.time)
-              .lt(BigNumber.from(Date.now() / 1000)) && (
-              <Web3Button
-                contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
-                action={(contract) => contract.call('withdrawFunds')}
-                onSuccess={() => alert('Success')}
-                onError={(e) => alert('ERROR')}
-              >
-                Withdraw Funds
-              </Web3Button>
-            )
-          } */}
+          {BigNumber.from(lockedFundsData.lockedAt)
+            .add(lockedFundsData.time)
+            .lt(BigNumber.from(Math.floor(Date.now() / 1000))) ? (
+            <Web3Button
+              contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
+              action={(contract) => contract.call('withdraw')}
+              onSuccess={() => alert('Success')}
+              onError={(e) => alert('ERROR')}
+            >
+              Withdraw
+            </Web3Button>
+          ) : (
+            <p>You are not ready to withdraw yet.</p>
+          )}
         </main>
       </div>
     </>
