@@ -14,6 +14,7 @@ import { useState } from 'react'
 
 const Home: NextPage = () => {
   const address = useAddress()
+  const { data: discordAuthData, status: discordAuthStatus } = useSession()
   const { contract } = useContract(ACCOUNTABILITY_CONTRACT_ADDRESS)
   const {
     data: lockedFundsData,
@@ -25,6 +26,10 @@ const Home: NextPage = () => {
     amount: '',
     days: 0,
   })
+
+  async function attemptWithdraw() {
+    console.log('asdnifajiefjaiejif')
+  }
 
   // 0: Hasn't connected wallet yet
   if (!address) {
@@ -174,20 +179,26 @@ const Home: NextPage = () => {
               </div>
             </>
           )}
-          {BigNumber.from(lockedFundsData.lockedAt)
-            .add(lockedFundsData.time)
-            .lt(BigNumber.from(Math.floor(Date.now() / 1000))) ? (
-            <Web3Button
-              contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
-              action={(contract) => contract.call('withdraw')}
-              onSuccess={() => alert('Success')}
-              onError={(e) => alert('ERROR')}
-            >
-              Withdraw
-            </Web3Button>
-          ) : (
-            <p>You are not ready to withdraw yet.</p>
-          )}
+          {
+            // The user needs to sign in with Discord, before this button appears.
+            discordAuthStatus !== 'authenticated' ? (
+              <button onClick={() => signIn('discord')}>
+                Sign in with Discord
+              </button>
+            ) : BigNumber.from(lockedFundsData.lockedAt)
+                .add(lockedFundsData.time)
+                .mul(1000)
+                .lt(BigNumber.from(Date.now())) ? (
+              <Web3Button
+                contractAddress={ACCOUNTABILITY_CONTRACT_ADDRESS}
+                action={() => attemptWithdraw()}
+              >
+                Withdraw
+              </Web3Button>
+            ) : (
+              <p>You are not ready to withdraw yet.</p>
+            )
+          }
         </main>
       </div>
     </>
